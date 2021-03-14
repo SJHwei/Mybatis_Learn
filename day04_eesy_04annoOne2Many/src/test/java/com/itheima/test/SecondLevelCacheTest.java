@@ -20,15 +20,11 @@ public class SecondLevelCacheTest {
 
     private InputStream in;
     private SqlSessionFactory factory;
-    private SqlSession session;
-    private IUserDao userDao;
 
     @Before
     public void init() throws Exception {
         in = Resources.getResourceAsStream("SqlMapConfig.xml");
         factory = new SqlSessionFactoryBuilder().build(in);
-        session = factory.openSession();
-        userDao = session.getMapper(IUserDao.class);
     }
 
     @After
@@ -38,21 +34,19 @@ public class SecondLevelCacheTest {
 
     @Test
     public void testFindOne() {
-
-        User user = userDao.findById(61);
-        System.out.println(user);
-        session.close(); //释放一级缓存
-
-        SqlSession session1 = factory.openSession(); //再次打开session
+        SqlSession session1 = factory.openSession();
         IUserDao userDao1 = session1.getMapper(IUserDao.class);
-
         User user1 = userDao1.findById(61);
         System.out.println(user1);
+        session1.close(); //释放一级缓存
 
-        session1.commit();
-        session1.close();
+        SqlSession session2 = factory.openSession(); //再次打开session
+        IUserDao userDao2 = session2.getMapper(IUserDao.class);
+        User user2 = userDao2.findById(61);
+        System.out.println(user2);
+        session2.close();
 
         //测试一级缓存，不用过多考虑一级缓存，一级缓存本来就有。
-        System.out.println(user == user1);
+        System.out.println(user1 == user2);
     }
 }

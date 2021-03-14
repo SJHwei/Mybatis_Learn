@@ -12,6 +12,7 @@ import java.util.List;
  *
  * 在mybatis中针对CRUD一共有四个注解：@select，@insert，@update，@delete
  */
+@CacheNamespace(blocking = true)
 public interface IUserDao {
 
     /**
